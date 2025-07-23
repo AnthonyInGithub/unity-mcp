@@ -126,13 +126,18 @@ namespace UnityMcpBridge.Editor.Tools
                             new
                             {
                                 type = "text",
-                                text = $"Screenshot captured from camera '{targetCamera.name}' at 320x180 resolution (original: {screenshotWidth}x{screenshotHeight}) in {actualFormat} format."
+                                data = "image\n=====\n\n"
                             },
                             new
                             {
                                 type = "image",
                                 data = base64Image,
                                 mimeType = actualFormat == "JPG" ? "image/jpeg" : "image/png"
+                            },
+                            new
+                            {
+                                type = "text",
+                                data = "  \n\n"
                             }
                         }
                     };
