@@ -1,4 +1,4 @@
-from mcp.server.fastmcp import FastMCP, Context, Image
+from mcp.server import FastMCP, Context, Image
 from typing import Dict, Any, List
 import base64
 from unity_connection import get_unity_connection
