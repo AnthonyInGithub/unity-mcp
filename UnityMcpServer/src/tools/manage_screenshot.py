@@ -1,4 +1,4 @@
-from mcp.server.fastmcp import FastMCP, Context
+from mcp.server.fastmcp import FastMCP, Context, Image
 from typing import Dict, Any, List
 import base64
 from unity_connection import get_unity_connection
@@ -44,8 +44,27 @@ def register_manage_screenshot_tools(mcp: FastMCP):
 
             # Unity now returns proper MCP content format directly
             if "content" in response:
-                # Return content array directly - let FastMCP handle the format
-                return response["content"]
+                # Extract image data from Unity response and return as FastMCP Image
+                content_array = response["content"]
+                
+                # Find the image content in the array
+                for item in content_array:
+                    if item.get("type") == "image":
+                        # Get base64 data and mime type from Unity
+                        base64_data = item.get("data", "")
+                        mime_type = item.get("mimeType", "image/png")
+                        
+                        # Convert base64 to bytes for FastMCP
+                        img_bytes = base64.b64decode(base64_data)
+                        
+                        # Extract format from mime type (e.g., "image/png" -> "png")
+                        format_type = mime_type.split("/")[-1] if "/" in mime_type else "png"
+                        
+                        # Return using FastMCP Image class
+                        return Image(data=img_bytes, format=format_type)
+                
+                # If no image found, fall back to text response
+                return {"success": True, "message": "Screenshot captured but no image data found.", "data": response}
             else:
                 # Fallback for other actions (like list_cameras) or error responses
                 return {
