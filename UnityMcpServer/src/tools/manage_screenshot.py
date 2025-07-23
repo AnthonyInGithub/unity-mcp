@@ -53,8 +53,8 @@ def register_manage_screenshot_tools(mcp: FastMCP):
                         image_data = base64.b64decode(data["imageData"])
                         image_format = data.get("format", "PNG").lower()
                         
-                        # Create Image object for MCP
-                        screenshot_image = Image(data=image_data)
+                        # Create Image object for official MCP SDK
+                        screenshot_image = Image(data=image_data, format=image_format)
                         
                         return {
                             "success": True, 
