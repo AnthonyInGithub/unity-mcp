@@ -120,7 +120,7 @@ namespace UnityMcpBridge.Editor.Tools
                     // Return in proper MCP content format for LLM visual processing
                     return new
                     {
-                        content = new[]
+                        content = new object[]
                         {
                             new
                             {
