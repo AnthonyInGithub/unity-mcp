@@ -90,39 +90,47 @@ namespace UnityMcpBridge.Editor.Tools
                     screenshot.ReadPixels(new Rect(0, 0, screenshotWidth, screenshotHeight), 0, 0);
                     screenshot.Apply();
 
-                    // Convert to bytes based on format
+                    // Resize to 16x9 thumbnail for faster transmission
+                    Texture2D thumbnail = ResizeTexture(screenshot, 16, 9);
+                    
+                    // Clean up original full-size screenshot
+                    UnityEngine.Object.DestroyImmediate(screenshot);
+
+                    // Convert thumbnail to bytes based on format
                     byte[] imageBytes;
                     string actualFormat;
                     
                     if (format == "JPG" || format == "JPEG")
                     {
-                        imageBytes = screenshot.EncodeToJPG(75); // 75% quality
+                        imageBytes = thumbnail.EncodeToJPG(75); // 75% quality
                         actualFormat = "JPG";
                     }
                     else
                     {
-                        imageBytes = screenshot.EncodeToPNG();
+                        imageBytes = thumbnail.EncodeToPNG();
                         actualFormat = "PNG";
                     }
 
                     // Convert to base64
                     string base64Image = System.Convert.ToBase64String(imageBytes);
 
-                    // Clean up
-                    UnityEngine.Object.DestroyImmediate(screenshot);
+                    // Clean up thumbnail
+                    UnityEngine.Object.DestroyImmediate(thumbnail);
 
                     // Return success response with image data
                     var responseData = new
                     {
                         imageData = base64Image,
                         cameraName = targetCamera.name,
-                        width = screenshotWidth,
-                        height = screenshotHeight,
+                        width = 16, // Thumbnail size
+                        height = 9, // Thumbnail size
+                        originalWidth = screenshotWidth, // Original capture size for reference
+                        originalHeight = screenshotHeight,
                         format = actualFormat,
                         timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     };
 
-                    return Response.Success($"Screenshot captured from camera '{targetCamera.name}' ({screenshotWidth}x{screenshotHeight})", responseData);
+                    return Response.Success($"Screenshot captured from camera '{targetCamera.name}' and compressed to 16x9 thumbnail (original: {screenshotWidth}x{screenshotHeight})", responseData);
                 }
                 finally
                 {
@@ -222,6 +230,38 @@ namespace UnityMcpBridge.Editor.Tools
                 Camera[] cameras = UnityEngine.Object.FindObjectsOfType<Camera>();
                 return cameras.FirstOrDefault(c => c.name.Equals(cameraName, StringComparison.OrdinalIgnoreCase));
             }
+        }
+
+        /// <summary>
+        /// Resizes a Texture2D to the specified dimensions using bilinear filtering.
+        /// </summary>
+        private static Texture2D ResizeTexture(Texture2D original, int newWidth, int newHeight)
+        {
+            // Create a new texture with the target size
+            Texture2D resized = new Texture2D(newWidth, newHeight, TextureFormat.RGB24, false);
+            
+            // Calculate scaling factors
+            float xScale = (float)original.width / newWidth;
+            float yScale = (float)original.height / newHeight;
+            
+            // Sample pixels from original texture
+            for (int y = 0; y < newHeight; y++)
+            {
+                for (int x = 0; x < newWidth; x++)
+                {
+                    // Calculate source coordinates with bilinear sampling
+                    float sourceX = x * xScale;
+                    float sourceY = y * yScale;
+                    
+                    // Get color using bilinear interpolation
+                    Color pixelColor = original.GetPixelBilinear(sourceX / original.width, sourceY / original.height);
+                    resized.SetPixel(x, y, pixelColor);
+                }
+            }
+            
+            // Apply changes
+            resized.Apply();
+            return resized;
         }
     }
 } 
