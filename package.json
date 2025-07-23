@@ -1,0 +1,11 @@
+{
+  "name": "com.yourcompany.unity-mcp",
+  "version": "1.0.0",
+  "displayName": "Unity MCP",
+  "description": "Your preview/package description here",
+  "unity": "2020.3",          // or your minimum supported Unity version
+  "dependencies": {
+     // any scoped dependencies, e.g.
+     // "com.unity.textmeshpro": "3.0.6"
+  }
+}
