@@ -1,5 +1,6 @@
-from mcp.server.fastmcp import FastMCP, Context
+from mcp.server.fastmcp import FastMCP, Context, Image
 from typing import Dict, Any
+import base64
 from unity_connection import get_unity_connection
 
 def register_manage_screenshot_tools(mcp: FastMCP):
@@ -45,18 +46,31 @@ def register_manage_screenshot_tools(mcp: FastMCP):
             if response.get("success"):
                 data = response.get("data", {})
                 
-                # If this is a capture action and we have image data, return it
+                # If this is a capture action and we have image data, return it as an Image
                 if action == "capture" and "imageData" in data:
-                    return {
-                        "success": True, 
-                        "message": response.get("message", "Screenshot captured successfully."),
-                        "data": {
-                            "base64_image": data["imageData"],
-                            "camera": data.get("cameraName"),
-                            "resolution": f"{data.get('width', 'unknown')}x{data.get('height', 'unknown')}",
-                            "format": data.get("format")
+                    try:
+                        # Decode base64 image data
+                        image_data = base64.b64decode(data["imageData"])
+                        image_format = data.get("format", "PNG").lower()
+                        
+                        # Create Image object for MCP
+                        screenshot_image = Image(data=image_data)
+                        
+                        return {
+                            "success": True, 
+                            "message": response.get("message", "Screenshot captured successfully."),
+                            "image": screenshot_image,
+                            "metadata": {
+                                "camera": data.get("cameraName"),
+                                "resolution": f"{data.get('width', 'unknown')}x{data.get('height', 'unknown')}",
+                                "format": data.get("format")
+                            }
                         }
-                    }
+                    except Exception as img_error:
+                        return {
+                            "success": False, 
+                            "message": f"Error processing screenshot image: {str(img_error)}"
+                        }
                 else:
                     # For non-capture actions or when no image data
                     return {
