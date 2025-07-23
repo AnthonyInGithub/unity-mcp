@@ -369,6 +369,7 @@ namespace UnityMcpBridge.Editor
                 JObject paramsObject = command.@params ?? new JObject();
 
                 // Route command based on the new tool structure from the refactor plan
+                Debug.Log($"[UnityMcpBridge] Executing command: {command.type}");
                 object result = command.type switch
                 {
                     // Maps the command type (tool name) to the corresponding handler's static HandleCommand method
@@ -381,15 +382,33 @@ namespace UnityMcpBridge.Editor
                     "manage_shader" => ManageShader.HandleCommand(paramsObject),
                     "read_console" => ReadConsole.HandleCommand(paramsObject),
                     "execute_menu_item" => ExecuteMenuItem.HandleCommand(paramsObject),
-                    "manage_screenshot" => ManageScreenshot.HandleCommand(paramsObject),
+                    "manage_screenshot" => {
+                        Debug.Log("[UnityMcpBridge] About to call ManageScreenshot.HandleCommand");
+                        var screenshotResult = ManageScreenshot.HandleCommand(paramsObject);
+                        Debug.Log($"[UnityMcpBridge] ManageScreenshot.HandleCommand returned: {screenshotResult?.GetType().Name ?? "null"}");
+                        return screenshotResult;
+                    },
                     _ => throw new ArgumentException(
                         $"Unknown or unsupported command type: {command.type}"
                     ),
                 };
+                Debug.Log($"[UnityMcpBridge] Command {command.type} completed successfully");
 
                 // Standard success response format
                 var response = new { status = "success", result };
-                return JsonConvert.SerializeObject(response);
+                Debug.Log($"[UnityMcpBridge] About to serialize response for command: {command.type}");
+                try 
+                {
+                    string jsonResponse = JsonConvert.SerializeObject(response);
+                    Debug.Log($"[UnityMcpBridge] Successfully serialized response ({jsonResponse.Length} chars)");
+                    return jsonResponse;
+                }
+                catch (Exception serEx)
+                {
+                    Debug.LogError($"[UnityMcpBridge] JSON serialization failed: {serEx.Message}");
+                    Debug.LogError($"[UnityMcpBridge] Serialization stack trace: {serEx.StackTrace}");
+                    throw;
+                }
             }
             catch (Exception ex)
             {
