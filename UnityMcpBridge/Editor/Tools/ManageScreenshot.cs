@@ -149,8 +149,6 @@ namespace UnityMcpBridge.Editor.Tools
                         renderTexture.Release();
                         UnityEngine.Object.DestroyImmediate(renderTexture);
                     }
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Screenshot capture completed successfully");
-
                 }
             }
             catch (Exception ex)
