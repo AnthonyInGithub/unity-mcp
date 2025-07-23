@@ -62,10 +62,12 @@ def asset_creation_strategy() -> str:
         "- `manage_gameobject`: Manages GameObjects in the scene.\\n"
         "- `manage_script`: Manages C# script files.\\n"
         "- `manage_asset`: Manages prefabs and assets.\\n"
-        "- `manage_shader`: Manages shaders.\\n\\n"
+        "- `manage_shader`: Manages shaders.\\n"
+        "- `manage_screenshot`: Takes screenshots from Unity cameras for visual debugging.\\n\\n"
         "Tips:\\n"
         "- Create prefabs for reusable GameObjects.\\n"
         "- Always include a camera and main light in your scenes.\\n"
+        "- Use `manage_screenshot` to capture visual state for debugging.\\n"
     )
 
 # Run the server
