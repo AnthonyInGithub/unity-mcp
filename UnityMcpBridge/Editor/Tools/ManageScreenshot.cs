@@ -40,7 +40,9 @@ namespace UnityMcpBridge.Editor.Tools
             }
             catch (Exception ex)
             {
-                return Response.Error($"Error in screenshot management: {ex.Message}");
+                UnityEngine.Debug.LogError($"[ManageScreenshot] Exception in HandleCommand: {ex.Message}");
+                UnityEngine.Debug.LogError($"[ManageScreenshot] Stack trace: {ex.StackTrace}");
+                return Response.Error($"Error in screenshot management: {ex.Message} | Stack: {ex.StackTrace}");
             }
         }
 
@@ -49,10 +51,13 @@ namespace UnityMcpBridge.Editor.Tools
         /// </summary>
         private static object CaptureScreenshot(string cameraName, int? width, int? height, string format)
         {
+            UnityEngine.Debug.Log($"[ManageScreenshot] Starting CaptureScreenshot - Camera: {cameraName}, Size: {width}x{height}, Format: {format}");
             try
             {
                 // Find the target camera
+                UnityEngine.Debug.Log($"[ManageScreenshot] Finding camera...");
                 Camera targetCamera = FindCamera(cameraName);
+                UnityEngine.Debug.Log($"[ManageScreenshot] Found camera: {targetCamera?.name ?? "null"}");
                 if (targetCamera == null)
                 {
                     string errorMsg = string.IsNullOrEmpty(cameraName) 
@@ -152,7 +157,9 @@ namespace UnityMcpBridge.Editor.Tools
             }
             catch (Exception ex)
             {
-                return Response.Error($"Failed to capture screenshot: {ex.Message}");
+                UnityEngine.Debug.LogError($"[ManageScreenshot] Exception in CaptureScreenshot: {ex.Message}");
+                UnityEngine.Debug.LogError($"[ManageScreenshot] CaptureScreenshot Stack trace: {ex.StackTrace}");
+                return Response.Error($"Failed to capture screenshot: {ex.Message} | Stack: {ex.StackTrace}");
             }
         }
 
