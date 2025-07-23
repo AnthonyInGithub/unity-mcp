@@ -67,19 +67,21 @@ class UnityConnection:
                         logger.debug("Received ping response")
                         return data
                     
-                                    # Handle escaped quotes in the content
-                if '"content":' in decoded_data:
-                    logger.debug(f"[DEBUG] Found content field, attempting to process escaped quotes")
-                    # Find the content field and its value
-                    content_start = decoded_data.find('"content":') + 9
-                    content_end = decoded_data.rfind('"', content_start)
-                    if content_end > content_start:
-                        logger.debug(f"[DEBUG] Content boundaries: {content_start} to {content_end}")
-                        # Replace escaped quotes in content with regular quotes
-                        content = decoded_data[content_start:content_end]
-                        content = content.replace('\\"', '"')
-                        decoded_data = decoded_data[:content_start] + content + decoded_data[content_end:]
-                        logger.debug(f"[DEBUG] Content quote processing completed")
+                    # Handle escaped quotes in the content (DISABLED for large responses to prevent corruption)
+                    # Note: This logic is problematic for complex JSON with base64 data
+                    # The rfind() approach incorrectly finds quotes from other parts of the JSON
+                    if False and '"content":' in decoded_data and len(decoded_data) < 10000:
+                        logger.debug(f"[DEBUG] Found content field, attempting to process escaped quotes")
+                        # Find the content field and its value
+                        content_start = decoded_data.find('"content":') + 9
+                        content_end = decoded_data.rfind('"', content_start)
+                        if content_end > content_start:
+                            logger.debug(f"[DEBUG] Content boundaries: {content_start} to {content_end}")
+                            # Replace escaped quotes in content with regular quotes
+                            content = decoded_data[content_start:content_end]
+                            content = content.replace('\\"', '"')
+                            decoded_data = decoded_data[:content_start] + content + decoded_data[content_end:]
+                            logger.debug(f"[DEBUG] Content quote processing completed")
                     
                     # Validate JSON format
                     json.loads(decoded_data)

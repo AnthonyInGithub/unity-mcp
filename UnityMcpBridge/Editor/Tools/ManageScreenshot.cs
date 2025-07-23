@@ -9,7 +9,7 @@ using UnityMcpBridge.Editor.Helpers;
 namespace UnityMcpBridge.Editor.Tools
 {
     /// <summary>
-    /// Handles screenshot operations for Unity cameras. 
+    /// Handles screenshot operations for Unity cameras.
     /// </summary>
     public static class ManageScreenshot
     {
@@ -126,18 +126,13 @@ namespace UnityMcpBridge.Editor.Tools
                             new
                             {
                                 type = "text",
-                                data = "image\n=====\n\n"
+                                text = $"Screenshot captured from camera '{targetCamera.name}' at 320x180 resolution (original: {screenshotWidth}x{screenshotHeight}) in {actualFormat} format."
                             },
                             new
                             {
                                 type = "image",
                                 data = base64Image,
                                 mimeType = actualFormat == "JPG" ? "image/jpeg" : "image/png"
-                            },
-                            new
-                            {
-                                type = "text",
-                                data = "  \n\n"
                             }
                         }
                     };
