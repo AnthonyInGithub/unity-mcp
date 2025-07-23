@@ -1,6 +1,5 @@
-from mcp.server.fastmcp import FastMCP, Context, Image
+from mcp.server.fastmcp import FastMCP, Context
 from typing import Dict, Any
-import base64
 from unity_connection import get_unity_connection
 
 def register_manage_screenshot_tools(mcp: FastMCP):
@@ -48,29 +47,25 @@ def register_manage_screenshot_tools(mcp: FastMCP):
                 
                 # If this is a capture action and we have image data, return it as an Image
                 if action == "capture" and "imageData" in data:
-                    try:
-                        # Decode base64 image data
-                        image_data = base64.b64decode(data["imageData"])
-                        image_format = data.get("format", "PNG").lower()
-                        
-                        # Create Image object for official MCP SDK
-                        screenshot_image = Image(data=image_data, format=image_format)
-                        
-                        return {
-                            "success": True, 
-                            "message": response.get("message", "Screenshot captured successfully."),
-                            "image": screenshot_image,
-                            "metadata": {
-                                "camera": data.get("cameraName"),
-                                "resolution": f"{data.get('width', 'unknown')}x{data.get('height', 'unknown')}",
-                                "format": data.get("format")
-                            }
+                    # Return the base64 image data in a format the agent can display
+                    image_format = data.get("format", "PNG").lower()
+                    base64_data = data["imageData"]
+                    
+                    # Create a data URI that can be displayed by the agent
+                    data_uri = f"data:image/{image_format};base64,{base64_data}"
+                    
+                    return {
+                        "success": True, 
+                        "message": response.get("message", "Screenshot captured successfully."),
+                        "data": {
+                            "image_url": data_uri,
+                            "base64_data": base64_data,
+                            "camera": data.get("cameraName"),
+                            "resolution": f"{data.get('width', 'unknown')}x{data.get('height', 'unknown')}",
+                            "format": data.get("format"),
+                            "size_kb": len(base64_data) * 3 // 4 // 1024  # Approximate size in KB
                         }
-                    except Exception as img_error:
-                        return {
-                            "success": False, 
-                            "message": f"Error processing screenshot image: {str(img_error)}"
-                        }
+                    }
                 else:
                     # For non-capture actions or when no image data
                     return {
