@@ -1,9 +1,0 @@
-{
-  "name": "com.anthonyin.github.unity-mcp",
-  "version": "1.0.0",
-  "displayName": "Unity MCP",
-  "description": "Your preview/package description here",
-  "unity": "2020.3",        
-  "dependencies": {
-  }
-}
