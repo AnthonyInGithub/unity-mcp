@@ -19,7 +19,7 @@ class ServerConfig:
     buffer_size: int = 16 * 1024 * 1024  # 16MB buffer
     
     # Logging settings
-    log_level: str = "INFO"
+    log_level: str = "DEBUG"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     
     # Server settings
