@@ -117,20 +117,24 @@ namespace UnityMcpBridge.Editor.Tools
                     // Clean up thumbnail
                     UnityEngine.Object.DestroyImmediate(thumbnail);
 
-                    // Return success response with image data
-                    var responseData = new
+                    // Return in proper MCP content format for LLM visual processing
+                    return new
                     {
-                        imageData = base64Image,
-                        cameraName = targetCamera.name,
-                        width = 320, // Thumbnail size
-                        height = 180, // Thumbnail size
-                        originalWidth = screenshotWidth, // Original capture size for reference
-                        originalHeight = screenshotHeight,
-                        format = actualFormat,
-                        timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
+                        content = new[]
+                        {
+                            new
+                            {
+                                type = "text",
+                                text = $"Screenshot captured from camera '{targetCamera.name}' at 320x180 resolution (original: {screenshotWidth}x{screenshotHeight}) in {actualFormat} format."
+                            },
+                            new
+                            {
+                                type = "image",
+                                data = base64Image,
+                                mimeType = actualFormat == "JPG" ? "image/jpeg" : "image/png"
+                            }
+                        }
                     };
-
-                    return Response.Success($"Screenshot captured from camera '{targetCamera.name}' and compressed to 320x180 thumbnail (original: {screenshotWidth}x{screenshotHeight})", responseData);
                 }
                 finally
                 {

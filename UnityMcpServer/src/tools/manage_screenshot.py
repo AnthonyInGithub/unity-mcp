@@ -42,44 +42,17 @@ def register_manage_screenshot_tools(mcp: FastMCP):
             # Send command to Unity
             response = get_unity_connection().send_command("manage_screenshot", params)
 
-            # Process response
-            if response.get("success"):
-                data = response.get("data", {})
-                
-                # If this is a capture action and we have image data, return it in proper MCP format
-                if action == "capture" and "imageData" in data:
-                    base64_data = data["imageData"]
-                    image_format = data.get("format", "PNG").lower()
-                    
-                    # Determine MIME type
-                    if image_format == "jpg" or image_format == "jpeg":
-                        mime_type = "image/jpeg"
-                    else:
-                        mime_type = "image/png"
-                    
-                    # Return in proper MCP content format for LLM visual processing
-                    return {
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"Screenshot captured from camera '{data.get('cameraName', 'Unknown')}' at {data.get('width', 'unknown')}x{data.get('height', 'unknown')} resolution in {data.get('format', 'unknown')} format."
-                            },
-                            {
-                                "type": "image",
-                                "data": base64_data,
-                                "mimeType": mime_type
-                            }
-                        ]
-                    }
-                else:
-                    # For non-capture actions (like list_cameras), return regular data
-                    return {
-                        "success": True, 
-                        "message": response.get("message", "Screenshot operation successful."), 
-                        "data": data
-                    }
+            # Unity now returns proper MCP content format directly
+            if "content" in response:
+                # Unity returned proper MCP format, pass it through
+                return response
             else:
-                return {"success": False, "message": response.get("error", "An unknown error occurred during screenshot operation.")}
+                # Fallback for other actions (like list_cameras) or error responses
+                return {
+                    "success": response.get("success", False),
+                    "message": response.get("message", "Screenshot operation completed."),
+                    "data": response.get("data", {})
+                }
 
         except Exception as e:
             return {"success": False, "message": f"Python error managing screenshot: {str(e)}"} 
