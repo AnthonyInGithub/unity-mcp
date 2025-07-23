@@ -90,8 +90,8 @@ namespace UnityMcpBridge.Editor.Tools
                     screenshot.ReadPixels(new Rect(0, 0, screenshotWidth, screenshotHeight), 0, 0);
                     screenshot.Apply();
 
-                    // Resize to 16x9 thumbnail for faster transmission
-                    Texture2D thumbnail = ResizeTexture(screenshot, 16, 9);
+                    // Resize to 80x45 thumbnail for faster transmission
+                    Texture2D thumbnail = ResizeTexture(screenshot, 80, 45);
                     
                     // Clean up original full-size screenshot
                     UnityEngine.Object.DestroyImmediate(screenshot);
@@ -122,15 +122,15 @@ namespace UnityMcpBridge.Editor.Tools
                     {
                         imageData = base64Image,
                         cameraName = targetCamera.name,
-                        width = 16, // Thumbnail size
-                        height = 9, // Thumbnail size
+                        width = 80, // Thumbnail size
+                        height = 45, // Thumbnail size
                         originalWidth = screenshotWidth, // Original capture size for reference
                         originalHeight = screenshotHeight,
                         format = actualFormat,
                         timestamp = System.DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")
                     };
 
-                    return Response.Success($"Screenshot captured from camera '{targetCamera.name}' and compressed to 16x9 thumbnail (original: {screenshotWidth}x{screenshotHeight})", responseData);
+                    return Response.Success($"Screenshot captured from camera '{targetCamera.name}' and compressed to 80x45 thumbnail (original: {screenshotWidth}x{screenshotHeight})", responseData);
                 }
                 finally
                 {
