@@ -14,7 +14,7 @@ def register_manage_screenshot_tools(mcp: FastMCP):
         width: int = None,
         height: int = None,
         format: str = "PNG"
-    ) -> Dict[str, Any]:
+    ):
         """Takes screenshots of Unity cameras and returns them as images.
 
         Args:
@@ -44,8 +44,24 @@ def register_manage_screenshot_tools(mcp: FastMCP):
 
             # Unity now returns proper MCP content format directly
             if "content" in response:
-                # Unity returned proper MCP format, pass it through
-                return response
+                # Unity returned proper MCP format with content array
+                # Return the content array directly to bypass text wrapping
+                from mcp.types import TextContent, ImageContent
+                
+                content_array = response["content"]
+                mcp_content = []
+                
+                for item in content_array:
+                    if item.get("type") == "text":
+                        mcp_content.append(TextContent(type="text", text=item.get("data", "")))
+                    elif item.get("type") == "image":
+                        mcp_content.append(ImageContent(
+                            type="image", 
+                            data=item.get("data", ""), 
+                            mimeType=item.get("mimeType", "image/png")
+                        ))
+                
+                return mcp_content
             else:
                 # Fallback for other actions (like list_cameras) or error responses
                 return {
