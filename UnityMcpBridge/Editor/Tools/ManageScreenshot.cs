@@ -51,13 +51,10 @@ namespace UnityMcpBridge.Editor.Tools
         /// </summary>
         private static object CaptureScreenshot(string cameraName, int? width, int? height, string format)
         {
-            UnityEngine.Debug.Log($"[ManageScreenshot] Starting CaptureScreenshot - Camera: {cameraName}, Size: {width}x{height}, Format: {format}");
             try
             {
                 // Find the target camera
-                UnityEngine.Debug.Log($"[ManageScreenshot] Finding camera...");
                 Camera targetCamera = FindCamera(cameraName);
-                UnityEngine.Debug.Log($"[ManageScreenshot] Found camera: {targetCamera?.name ?? "null"}");
                 if (targetCamera == null)
                 {
                     string errorMsg = string.IsNullOrEmpty(cameraName) 
@@ -67,26 +64,18 @@ namespace UnityMcpBridge.Editor.Tools
                 }
 
                 // Determine screenshot dimensions
-                UnityEngine.Debug.Log($"[ManageScreenshot] Camera pixel dimensions: {targetCamera.pixelWidth}x{targetCamera.pixelHeight}");
                 int screenshotWidth = width ?? (int)targetCamera.pixelWidth;
                 int screenshotHeight = height ?? (int)targetCamera.pixelHeight;
-                UnityEngine.Debug.Log($"[ManageScreenshot] Initial dimensions: {screenshotWidth}x{screenshotHeight}");
 
                 // Validate dimensions
                 if (screenshotWidth <= 0 || screenshotHeight <= 0)
                 {
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Invalid dimensions detected, using defaults");
                     screenshotWidth = 1920; // Default width
                     screenshotHeight = 1080; // Default height
                 }
-                UnityEngine.Debug.Log($"[ManageScreenshot] Final dimensions: {screenshotWidth}x{screenshotHeight}");
-
                 // Create render texture
-                UnityEngine.Debug.Log($"[ManageScreenshot] Creating render texture...");
                 RenderTexture renderTexture = new RenderTexture(screenshotWidth, screenshotHeight, 24);
-                UnityEngine.Debug.Log($"[ManageScreenshot] Render texture created successfully");
                 RenderTexture.active = renderTexture;
-                UnityEngine.Debug.Log($"[ManageScreenshot] Set active render texture");
 
                 // Store original camera settings
                 RenderTexture originalTargetTexture = targetCamera.targetTexture;
@@ -94,20 +83,13 @@ namespace UnityMcpBridge.Editor.Tools
                 try
                 {
                     // Set camera to render to our texture
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Setting camera target texture...");
                     targetCamera.targetTexture = renderTexture;
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Rendering camera...");
                     targetCamera.Render();
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Camera render complete");
 
                     // Read pixels from render texture
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Creating screenshot texture...");
                     Texture2D screenshot = new Texture2D(screenshotWidth, screenshotHeight, TextureFormat.RGB24, false);
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Reading pixels...");
                     screenshot.ReadPixels(new Rect(0, 0, screenshotWidth, screenshotHeight), 0, 0);
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Applying texture changes...");
                     screenshot.Apply();
-                    UnityEngine.Debug.Log($"[ManageScreenshot] Screenshot capture completed successfully");
 
                     // Resize to 320x180 thumbnail for faster transmission
                     Texture2D thumbnail = ResizeTexture(screenshot, 320, 180);
@@ -167,6 +149,8 @@ namespace UnityMcpBridge.Editor.Tools
                         renderTexture.Release();
                         UnityEngine.Object.DestroyImmediate(renderTexture);
                     }
+                    UnityEngine.Debug.Log($"[ManageScreenshot] Screenshot capture completed successfully");
+
                 }
             }
             catch (Exception ex)
