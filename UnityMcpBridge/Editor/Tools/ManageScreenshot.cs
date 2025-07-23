@@ -125,19 +125,9 @@ namespace UnityMcpBridge.Editor.Tools
                         {
                             new
                             {
-                                type = "text",
-                                data = "image\n=====\n\n"
-                            },
-                            new
-                            {
                                 type = "image",
                                 data = base64Image,
                                 mimeType = actualFormat == "JPG" ? "image/jpeg" : "image/png"
-                            },
-                            new
-                            {
-                                type = "text",
-                                data = "  \n\n"
                             }
                         }
                     };
