@@ -389,6 +389,25 @@ namespace UnityMcpBridge.Editor
 
                 // Standard success response format
                 var response = new { status = "success", result };
+                
+                // Debug logging for screenshot responses specifically  
+                if (command.type == "manage_screenshot")
+                {
+                    Debug.Log($"[UnityMcpBridge] Attempting to serialize screenshot response...");
+                    try
+                    {
+                        string serialized = JsonConvert.SerializeObject(response);
+                        Debug.Log($"[UnityMcpBridge] Screenshot serialization successful, size: {serialized.Length} chars");
+                        return serialized;
+                    }
+                    catch (Exception serEx)
+                    {
+                        Debug.LogError($"[UnityMcpBridge] Screenshot serialization failed: {serEx.Message}");
+                        Debug.LogError($"[UnityMcpBridge] Screenshot serialization stack: {serEx.StackTrace}");
+                        throw; // Re-throw to trigger the outer catch block
+                    }
+                }
+                
                 return JsonConvert.SerializeObject(response);
             }
             catch (Exception ex)
